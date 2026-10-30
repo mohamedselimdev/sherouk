@@ -144,3 +144,29 @@ test("arabic admin pages render right-to-left with translated labels", async ({ 
   await page.goto("/ar/admin/finance");
   await expect(page.getByRole("heading", { name: "المالية" })).toBeVisible();
 });
+
+test("coupons: created in the admin, duplicates refused, disabled, and hidden from support", async ({
+  page,
+}) => {
+  const code = `E2E${Date.now().toString().slice(-6)}`;
+  await loginAsStaff(page, hq);
+  await page.getByRole("link", { name: "Coupons" }).click();
+  await expect(page.getByRole("heading", { name: "Coupons" })).toBeVisible();
+  const add = async () => {
+    await page.getByLabel("Code").fill(code);
+    await page.getByLabel("Value (% or EGP)").fill("15");
+    await page.getByRole("button", { name: "Add coupon" }).click();
+  };
+  await add();
+  await expect(page.locator("main li").filter({ hasText: code })).toContainText("15%");
+  await add();
+  await expect(page.getByText("That code already exists.")).toBeVisible();
+  await page.locator("main li").filter({ hasText: code }).getByRole("button", { name: "Disable" }).click();
+  await expect(
+    page.locator("main li").filter({ hasText: code }).getByRole("button", { name: "Enable" }),
+  ).toBeVisible();
+
+  await page.context().clearCookies();
+  await loginAsStaff(page, support);
+  expect((await page.goto("/en/admin/coupons"))?.status()).toBe(403);
+});

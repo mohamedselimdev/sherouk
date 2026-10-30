@@ -10,6 +10,7 @@ import {
   PackageSearch,
   ShoppingCart,
   Store,
+  Ticket,
   UserCog,
   Users,
   X,
@@ -43,6 +44,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
       financeRead: can(principal, "finance:read"),
       auditRead: can(principal, "audit:read"),
       customersRead: can(principal, "customers:read"),
+      couponsManage: can(principal, "coupons:manage"),
       branchesRead: canAny(principal, "branches:read"),
     },
   };
@@ -84,6 +86,9 @@ function AdminShell({ data }: { data: Route.ComponentProps["loaderData"] }) {
       : []),
     ...(data.caps.customersRead
       ? [{ label: a.modules.customers, to: `/${lang}/admin/customers`, icon: Users }]
+      : []),
+    ...(data.caps.couponsManage
+      ? [{ label: a.modules.coupons, to: `/${lang}/admin/coupons`, icon: Ticket }]
       : []),
     ...(data.caps.financeRead
       ? [{ label: a.modules.finance, to: `/${lang}/admin/finance`, icon: Banknote }]

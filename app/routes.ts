@@ -27,6 +27,7 @@ export default [
       route("admin/audit", "routes/admin-audit.tsx"),
       route("admin/customers", "routes/admin-customers.tsx"),
       route("admin/branches", "routes/admin-branches.tsx"),
+      route("admin/coupons", "routes/admin-coupons.tsx"),
     ]),
     layout("layouts/storefront.tsx", [
       index("routes/home.tsx"),
