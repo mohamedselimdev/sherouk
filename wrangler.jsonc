@@ -37,7 +37,7 @@
 				{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_NO_CACHE" },
 				{ "binding": "HYPERDRIVE_CATALOG", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_CACHED" }
 			],
-			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "shrouk-media-staging" }]
+			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "shrouk-media" }]
 		},
 		"production": {
 			"name": "shrouk-eyewear-production",
