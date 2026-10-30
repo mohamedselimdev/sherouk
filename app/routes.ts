@@ -3,6 +3,8 @@ import { type RouteConfig, index, layout, prefix, route } from "@react-router/de
 export default [
   index("routes/root-redirect.tsx"),
   route("media/*", "routes/media.tsx"),
+  route("sitemap.xml", "routes/sitemap.tsx"),
+  route("robots.txt", "routes/robots.tsx"),
   route("webhooks/paymob", "routes/webhook-paymob.tsx"),
   ...prefix(":lang", [
     layout("layouts/admin-public.tsx", [

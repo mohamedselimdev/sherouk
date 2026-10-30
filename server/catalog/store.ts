@@ -1,8 +1,9 @@
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "../db";
 import {
   categories,
+  branchInventory,
   categoryTranslations,
   media,
   productTranslations,
@@ -38,6 +39,8 @@ export type StoreProduct = {
   colors: StoreColor[];
   featured: boolean;
   shape: string | null;
+  /** True when some branch has sellable units of at least one active variant. */
+  inStock: boolean;
 };
 
 export type StoreCategory = { key: string; name: string; blurb: string };
@@ -84,13 +87,20 @@ async function assemble(db: Db, extra?: { locale: Locale; slug: string }): Promi
     );
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
-  const [variants, images] = await Promise.all([
+  const [variants, images, stockRows] = await Promise.all([
     db
       .select()
       .from(productVariants)
       .where(and(inArray(productVariants.productId, ids), isNull(productVariants.archivedAt)))
       .orderBy(asc(productVariants.sortOrder), asc(productVariants.pricePiasters)),
     db.select().from(media).where(inArray(media.productId, ids)).orderBy(asc(media.sortOrder)),
+    db
+      .select({
+        variantId: branchInventory.variantId,
+        available: sql<number>`sum(${branchInventory.onHand} - ${branchInventory.reserved})::int`,
+      })
+      .from(branchInventory)
+      .groupBy(branchInventory.variantId),
   ]);
   return rows
     .map((r): StoreProduct | null => {
@@ -118,6 +128,7 @@ async function assemble(db: Db, extra?: { locale: Locale; slug: string }): Promi
         })),
         featured: r.featured,
         shape: r.shape,
+        inStock: vs.some((v) => (stockRows.find((x) => x.variantId === v.id)?.available ?? 0) > 0),
       };
     })
     .filter((p): p is StoreProduct => p !== null);

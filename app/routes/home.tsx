@@ -7,6 +7,7 @@ import { DEFAULT_LOCALE, isLocale } from "~/i18n/config";
 import { useT } from "~/i18n/context";
 import { listStoreCategories, listStoreProducts } from "../../server/catalog/store";
 import { getScope } from "../../server/http/session";
+import { pageMeta, siteOrigin } from "~/lib/seo";
 import {
   btnPrimary,
   container,
@@ -18,9 +19,15 @@ import {
   TrustStrip,
 } from "~/components/ui";
 
-export function meta({ params }: Route.MetaArgs) {
+export function meta({ loaderData: d, params }: Route.MetaArgs) {
   const lang = isLocale(params.lang) ? params.lang : DEFAULT_LOCALE;
-  return [{ title: dictionaries[lang].home.title }, { name: "robots", content: "noindex" }];
+  return pageMeta({
+    siteUrl: d?.siteUrl ?? "",
+    index: d?.index ?? false,
+    lang,
+    paths: { ar: "/ar", en: "/en" },
+    title: dictionaries[lang].home.title,
+  });
 }
 
 const CATEGORY_FALLBACK_IMAGE: Record<string, string> = {
@@ -29,12 +36,15 @@ const CATEGORY_FALLBACK_IMAGE: Record<string, string> = {
 
 export async function loader({ context, params }: Route.LoaderArgs) {
   const lang = isLocale(params.lang) ? params.lang : DEFAULT_LOCALE;
-  const db = getScope(context).catalogDb;
+  const scope = getScope(context);
+  const db = scope.catalogDb;
   const [categories, products] = await Promise.all([listStoreCategories(db, lang), listStoreProducts(db)]);
   const bestSellers = [...products]
     .sort((a, b) => Number(b.featured) - Number(a.featured) || Number(!!b.oldPrice) - Number(!!a.oldPrice))
     .slice(0, 4);
   return {
+    siteUrl: siteOrigin(scope.env.SITE_URL),
+    index: scope.env.APP_ENV === "production",
     bestSellers,
     categories: categories.map((c) => ({
       ...c,

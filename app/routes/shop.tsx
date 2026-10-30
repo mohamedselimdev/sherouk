@@ -5,6 +5,7 @@ import type { Route } from "./+types/shop";
 import { COLORS, type ColorKey } from "~/demo/data";
 import { listStoreCategories, listStoreProducts, type StoreCategory } from "../../server/catalog/store";
 import { getScope } from "../../server/http/session";
+import { pageMeta, siteOrigin } from "~/lib/seo";
 import { DEFAULT_LOCALE, isLocale } from "~/i18n/config";
 import { dictionaries } from "~/i18n/dictionary";
 import { useT } from "~/i18n/context";
@@ -24,7 +25,8 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const lang = url.pathname.split("/")[1];
   const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
-  const db = getScope(context).catalogDb;
+  const scope = getScope(context);
+  const db = scope.catalogDb;
   const [categories, all] = await Promise.all([listStoreCategories(db, locale), listStoreProducts(db)]);
   const q = (url.searchParams.get("q") ?? "").trim().slice(0, 80);
   const category = params.category;
@@ -53,14 +55,32 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   if (sort === "price-asc") items = [...items].sort((a, b) => a.price - b.price);
   if (sort === "price-desc") items = [...items].sort((a, b) => b.price - a.price);
   if (sort === "featured") items = [...items].sort((a, b) => Number(b.featured) - Number(a.featured));
-  return { items, category: category ?? null, categories, q, sort, view, locale };
+  return {
+    siteUrl: siteOrigin(scope.env.SITE_URL),
+    index: scope.env.APP_ENV === "production",
+    items,
+    category: category ?? null,
+    categories,
+    q,
+    sort,
+    view,
+    locale,
+  };
 }
 
 export function meta({ loaderData: d }: Route.MetaArgs) {
   const lang = d?.locale ?? DEFAULT_LOCALE;
   const cat = d?.categories.find((c) => c.key === d?.category);
   const title = cat ? cat.name : lang === "ar" ? "المتجر" : "Shop";
-  return [{ title: `${title} | ${dictionaries[lang].brandEn}` }, { name: "robots", content: "noindex" }];
+  const path = (l: string) => (d?.category ? `/${l}/c/${d.category}` : `/${l}/shop`);
+  return pageMeta({
+    siteUrl: d?.siteUrl ?? "",
+    index: d?.index ?? false,
+    lang,
+    paths: { ar: path("ar"), en: path("en") },
+    title: `${title} | ${dictionaries[lang].brandEn}`,
+    description: cat?.blurb || undefined,
+  });
 }
 
 function FilterForm({

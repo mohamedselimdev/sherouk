@@ -5,6 +5,7 @@ import type { Route } from "./+types/product";
 import { colorHex, colorName } from "~/demo/data";
 import { getStoreProduct, listStoreCategories, listStoreProducts } from "../../server/catalog/store";
 import { getScope } from "../../server/http/session";
+import { breadcrumbJsonLd, pageMeta, productJsonLd, siteOrigin } from "~/lib/seo";
 import { DEFAULT_LOCALE, isLocale } from "~/i18n/config";
 import { useT } from "~/i18n/context";
 import { formatEGP } from "~/lib/format";
@@ -26,11 +27,14 @@ import {
 
 export async function loader({ params, context }: Route.LoaderArgs) {
   const lang = isLocale(params.lang) ? params.lang : DEFAULT_LOCALE;
-  const db = getScope(context).catalogDb;
+  const scope = getScope(context);
+  const db = scope.catalogDb;
   const product = await getStoreProduct(db, lang, params.slug);
   if (!product) throw data(null, { status: 404 });
   const [categories, all] = await Promise.all([listStoreCategories(db, lang), listStoreProducts(db)]);
   return {
+    siteUrl: siteOrigin(scope.env.SITE_URL),
+    index: scope.env.APP_ENV === "production",
     product,
     category: categories.find((c) => c.key === product.category) ?? null,
     related: all.filter((x) => x.id !== product.id).slice(0, 4),
@@ -39,7 +43,36 @@ export async function loader({ params, context }: Route.LoaderArgs) {
 
 export function meta({ loaderData: d, params }: Route.MetaArgs) {
   const lang = isLocale(params.lang) ? params.lang : DEFAULT_LOCALE;
-  return [{ title: `${d?.product.name[lang] ?? ""} | SHROUK` }, { name: "robots", content: "noindex" }];
+  if (!d) return [{ title: "SHROUK" }, { name: "robots", content: "noindex" }];
+  const { product, siteUrl, category } = d;
+  const paths = { ar: `/ar/p/${product.slug.ar}`, en: `/en/p/${product.slug.en}` };
+  const description = product.description[lang] || product.sub[lang] || undefined;
+  return pageMeta({
+    siteUrl,
+    index: d.index,
+    lang,
+    paths,
+    title: `${product.name[lang]} | SHROUK`,
+    description,
+    image: product.image,
+    jsonLd: [
+      productJsonLd({
+        siteUrl,
+        url: siteUrl + paths[lang],
+        name: product.name[lang],
+        description,
+        image: product.image,
+        sku: product.colors[0]?.sku ?? product.id,
+        pricePiasters: product.price,
+        inStock: product.inStock,
+      }),
+      breadcrumbJsonLd([
+        { name: lang === "ar" ? "الرئيسية" : "Home", url: `${siteUrl}/${lang}` },
+        ...(category ? [{ name: category.name, url: `${siteUrl}/${lang}/c/${category.key}` }] : []),
+        { name: product.name[lang], url: siteUrl + paths[lang] },
+      ]),
+    ],
+  });
 }
 
 const FEATURE_ICONS = [Sun, ScanFace, Weight, ShieldCheck];
