@@ -5,8 +5,9 @@ import { btnOutline, container } from "~/components/ui";
 import { logoutCustomer } from "../../server/auth/customer";
 import { assertSameOrigin, clearCookie, CUSTOMER_COOKIE, peekCustomer } from "../../server/http/session";
 
-export function meta() {
-  return [{ name: "robots", content: "noindex,nofollow" }];
+export function meta({ params }: Route.MetaArgs) {
+  const title = params.lang === "ar" ? "حسابي" : "My account";
+  return [{ title: `${title} | SHROUK` }, { name: "robots", content: "noindex,nofollow" }];
 }
 
 export async function loader({ request, context, params }: Route.LoaderArgs) {

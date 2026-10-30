@@ -348,7 +348,7 @@ export function PageHero({
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#f1e8df] via-[#f1e8df]/80 to-transparent" />
       <div className={`${container} py-12 sm:py-16 lg:py-20`}>
         <div className="mr-auto max-w-xl">
-          {eyebrow ? <p className="text-sm font-semibold text-[#b94e25]">{eyebrow}</p> : null}
+          {eyebrow ? <p className="text-sm font-semibold text-cta">{eyebrow}</p> : null}
           <h1 className="mt-1 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">{title}</h1>
           {body ? <p className="mt-3 max-w-md text-base text-[#4b2e23] sm:text-lg">{body}</p> : null}
           {children ? <div className="mt-6 flex flex-wrap gap-3">{children}</div> : null}

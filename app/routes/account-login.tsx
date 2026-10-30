@@ -15,8 +15,9 @@ import {
   sessionCookie,
 } from "../../server/http/session";
 
-export function meta() {
-  return [{ name: "robots", content: "noindex,nofollow" }];
+export function meta({ params }: Route.MetaArgs) {
+  const title = params.lang === "ar" ? "تسجيل الدخول" : "Sign in";
+  return [{ title: `${title} | SHROUK` }, { name: "robots", content: "noindex,nofollow" }];
 }
 
 export async function loader({ request, context, params }: Route.LoaderArgs) {

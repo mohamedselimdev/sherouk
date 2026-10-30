@@ -49,7 +49,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
 }
 
 export function meta() {
-  return [{ name: "robots", content: "noindex,nofollow" }];
+  return [{ title: "SHROUK Admin" }, { name: "robots", content: "noindex,nofollow" }];
 }
 
 export default function AdminLayout({ loaderData }: Route.ComponentProps) {

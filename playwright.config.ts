@@ -14,11 +14,16 @@ export default defineConfig({
   outputDir: "artifacts/test-results",
   use: { baseURL: "http://localhost:5173" },
   projects: [
-    { name: "stateless", testMatch: ["layout.spec.ts", "behaviour.spec.ts", "seo.spec.ts"], use: chromium },
+    {
+      name: "stateless",
+      testMatch: ["layout.spec.ts", "behaviour.spec.ts", "seo.spec.ts"],
+      use: chromium,
+    },
     { name: "admin", testMatch: "admin.spec.ts", use: chromium },
     { name: "orders", testMatch: "orders.spec.ts", dependencies: ["admin"], use: chromium },
     { name: "payments", testMatch: "payments.spec.ts", dependencies: ["orders"], use: chromium },
     { name: "modules", testMatch: "modules.spec.ts", dependencies: ["payments"], use: chromium },
+    { name: "a11y", testMatch: "a11y.spec.ts", use: chromium },
     { name: "screens", testMatch: "screens.spec.ts", use: chromium },
   ],
   webServer: {

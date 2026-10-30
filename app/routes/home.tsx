@@ -140,7 +140,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <p className="mt-2 text-sm text-[#4b2e23]">{p.home.storyBody}</p>
               <Link
                 to={`/${lang}/about`}
-                className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#b94e25] hover:underline"
+                className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-cta hover:underline"
               >
                 {p.home.storyCta}
                 <EndArrow className="size-4" />
