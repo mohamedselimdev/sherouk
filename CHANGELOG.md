@@ -13,3 +13,4 @@
 - Phase 8 (security): Content Security Policy with per-request nonce for framework scripts and a pinned hash for the theme bootstrap script, enforced on built output; frame-ancestors none, object-src none, form-action limited to self and Paymob's hosted page.
 - Phase 8 (accessibility): axe audit over eight public pages in both languages and both themes (WCAG 2.1 AA), fixes for page titles and colour contrast of the accent colour in both themes.
 - Phase 6 (coupons): admin page to create, enable and disable discount coupons with validation, case-insensitive duplicate check and audit entries; new coupons:manage permission for HQ Admin and Marketing.
+- Phase 7 (blog): bilingual blog stored in the database with a draft and publish workflow in the admin, plain-text bodies rendered as text, BlogPosting and breadcrumb JSON-LD, posts in the sitemap, and the demo blog data replaced. Sample posts are seeded for development and staging only.

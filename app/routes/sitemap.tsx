@@ -1,4 +1,5 @@
 import type { Route } from "./+types/sitemap";
+import { listPublishedPosts } from "../../server/content/posts";
 import { listStoreCategories, listStoreProducts } from "../../server/catalog/store";
 import { siteOrigin } from "~/lib/seo";
 import { getScope } from "../../server/http/session";
@@ -19,14 +20,17 @@ export async function loader({ context }: Route.LoaderArgs) {
       { headers },
     );
   }
-  const [products, cats] = await Promise.all([
+  const [products, cats, blogPosts] = await Promise.all([
     listStoreProducts(scope.catalogDb),
     listStoreCategories(scope.catalogDb, "en"),
+    listPublishedPosts(scope.catalogDb),
   ]);
   type Entry = { ar: string; en: string };
   const entries: Entry[] = [
     { ar: "/ar", en: "/en" },
     { ar: "/ar/shop", en: "/en/shop" },
+    ...(blogPosts.length ? [{ ar: "/ar/blog", en: "/en/blog" }] : []),
+    ...blogPosts.map((b) => ({ ar: `/ar/blog/${b.slug.ar}`, en: `/en/blog/${b.slug.en}` })),
     ...cats.map((c) => ({ ar: `/ar/c/${c.key}`, en: `/en/c/${c.key}` })),
     ...products.map((p) => ({ ar: `/ar/p/${p.slug.ar}`, en: `/en/p/${p.slug.en}` })),
   ];

@@ -28,6 +28,8 @@ export default [
       route("admin/customers", "routes/admin-customers.tsx"),
       route("admin/branches", "routes/admin-branches.tsx"),
       route("admin/coupons", "routes/admin-coupons.tsx"),
+      route("admin/posts", "routes/admin-posts.tsx"),
+      route("admin/posts/:id", "routes/admin-post.tsx"),
     ]),
     layout("layouts/storefront.tsx", [
       index("routes/home.tsx"),

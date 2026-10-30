@@ -23,8 +23,9 @@ import {
   roles,
   users,
 } from "../db/schema";
-import { branchInventory, coupons, shippingRates, stockMovements } from "../db/schema";
+import { branchInventory, coupons, posts, shippingRates, stockMovements } from "../db/schema";
 import { GOVERNORATES } from "../server/fulfillment/governorates";
+import { POSTS } from "../app/demo/data";
 import { DEMO_BRANCHES, DEMO_CATEGORIES, DEMO_PRODUCTS } from "../db/seed/demo-catalog";
 
 function devVar(name: string): string | undefined {
@@ -170,6 +171,29 @@ for (const branch of demoBranchRows) {
         reason: "demo opening stock",
       });
   }
+}
+const SAMPLE_BODY = {
+  ar: "نص تجريبي للمقال. المحتوى الحقيقي يُكتب ويُراجع قبل النشر، ولا يتضمن نصائح طبية.",
+  en: "Sample article text. Real content is written and reviewed before publishing and contains no medical advice.",
+};
+for (const post of POSTS) {
+  await db
+    .insert(posts)
+    .values({
+      slugAr: post.slug,
+      slugEn: post.slug,
+      category: post.category,
+      coverImage: post.image,
+      titleAr: post.title.ar,
+      titleEn: post.title.en,
+      excerptAr: post.excerpt.ar,
+      excerptEn: post.excerpt.en,
+      bodyAr: SAMPLE_BODY.ar,
+      bodyEn: SAMPLE_BODY.en,
+      status: "published",
+      publishedAt: new Date(),
+    })
+    .onConflictDoNothing();
 }
 await db.insert(coupons).values({ code: "WELCOME10", type: "percent", value: 1000 }).onConflictDoNothing();
 

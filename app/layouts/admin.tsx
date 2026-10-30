@@ -12,6 +12,7 @@ import {
   Store,
   Ticket,
   UserCog,
+  Newspaper,
   Users,
   X,
   type LucideIcon,
@@ -45,6 +46,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
       auditRead: can(principal, "audit:read"),
       customersRead: can(principal, "customers:read"),
       couponsManage: can(principal, "coupons:manage"),
+      contentWrite: can(principal, "content:write"),
       branchesRead: canAny(principal, "branches:read"),
     },
   };
@@ -89,6 +91,9 @@ function AdminShell({ data }: { data: Route.ComponentProps["loaderData"] }) {
       : []),
     ...(data.caps.couponsManage
       ? [{ label: a.modules.coupons, to: `/${lang}/admin/coupons`, icon: Ticket }]
+      : []),
+    ...(data.caps.contentWrite
+      ? [{ label: a.modules.posts, to: `/${lang}/admin/posts`, icon: Newspaper }]
       : []),
     ...(data.caps.financeRead
       ? [{ label: a.modules.finance, to: `/${lang}/admin/finance`, icon: Banknote }]

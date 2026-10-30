@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { expect, test } from "@playwright/test";
-import { branches } from "../../db/schema";
+import { branches, coupons, posts } from "../../db/schema";
 import { createDb } from "../../server/db";
 import { createOrder } from "../../server/orders/service";
 import { cleanup, loginAsStaff, makeStaff, type TestStaff } from "./support";
@@ -49,6 +49,13 @@ test.beforeAll(async () => {
   managerZamalek = await makeStaff("mod-mgr", "branch_manager", zamalek);
 });
 test.afterAll(async () => {
+  const { db, close } = createDb(DEV_URL, 2);
+  try {
+    await db.delete(posts).where(like(posts.slugEn, "e2e-post-%"));
+    await db.delete(coupons).where(like(coupons.code, "E2E%"));
+  } finally {
+    await close();
+  }
   await resetOrdersAndStock();
   await cleanup();
 });
@@ -169,4 +176,43 @@ test("coupons: created in the admin, duplicates refused, disabled, and hidden fr
   await page.context().clearCookies();
   await loginAsStaff(page, support);
   expect((await page.goto("/en/admin/coupons"))?.status()).toBe(403);
+});
+
+test("blog: an editor drafts a post, it stays hidden until published, then shows as plain text", async ({
+  page,
+  browser,
+}) => {
+  const stamp = Date.now().toString().slice(-6);
+  const slug = `e2e-post-${stamp}`;
+  await loginAsStaff(page, hq);
+  await page.getByRole("link", { name: "Blog", exact: true }).click();
+  const fill = async (label: string, area: "Arabic version" | "English version", value: string) =>
+    page.getByRole("group", { name: area }).getByLabel(label, { exact: true }).fill(value);
+  await fill("Title", "Arabic version", "مقال اختبار");
+  await fill("URL slug", "Arabic version", `مقال-${stamp}`);
+  await fill("Short summary", "Arabic version", "ملخص");
+  await fill("Text (paragraphs separated by a blank line)", "Arabic version", "فقرة");
+  await fill("Title", "English version", "E2E post");
+  await fill("URL slug", "English version", slug);
+  await fill("Short summary", "English version", "Summary");
+  await fill(
+    "Text (paragraphs separated by a blank line)",
+    "English version",
+    "First paragraph\n\n<script>window.__xss=1</script>",
+  );
+  await page.getByRole("button", { name: "Add post" }).click();
+  await expect(page.getByRole("heading", { name: "E2E post" })).toBeVisible();
+
+  const visitor = await browser.newContext();
+  const anon = await visitor.newPage();
+  expect((await anon.goto(`/en/blog/${slug}`))?.status()).toBe(404);
+
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("button", { name: "Unpublish" })).toBeVisible();
+
+  expect((await anon.goto(`/en/blog/${slug}`))?.status()).toBe(200);
+  await expect(anon.getByRole("heading", { name: "E2E post" })).toBeVisible();
+  await expect(anon.getByText("<script>window.__xss=1</script>")).toBeVisible();
+  expect(await anon.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
+  await visitor.close();
 });

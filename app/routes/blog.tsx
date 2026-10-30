@@ -1,46 +1,61 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/blog";
-import { POSTS, POST_CATEGORIES, type DemoPost } from "~/demo/data";
+import { POST_CATEGORIES } from "~/demo/data";
 import { DEFAULT_LOCALE, isLocale } from "~/i18n/config";
 import { useT } from "~/i18n/context";
-import { btnPrimary, container, DemoBadge, EndArrow, PageHero, SectionHeading } from "~/components/ui";
+import { pageMeta, siteOrigin } from "~/lib/seo";
+import { btnPrimary, container, EndArrow, PageHero, SectionHeading } from "~/components/ui";
+import { listPublishedPosts } from "../../server/content/posts";
+import { getScope } from "../../server/http/session";
 
-export function loader({ request }: Route.LoaderArgs) {
+const FALLBACK_IMAGE = "/assets/hero/hero-desktop-text-free.webp";
+
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const scope = getScope(context);
   const c = new URL(request.url).searchParams.get("c");
   const category = POST_CATEGORIES.find((x) => x.key === c)?.key ?? null;
-  return { category };
+  const all = await listPublishedPosts(scope.catalogDb);
+  return {
+    siteUrl: siteOrigin(scope.env.SITE_URL),
+    index: scope.env.APP_ENV === "production" && all.length > 0,
+    category,
+    featured: all[0] ?? null,
+    posts: all.filter((x) => !category || x.category === category),
+  };
 }
 
-export function meta({ params }: Route.MetaArgs) {
+export function meta({ loaderData: d, params }: Route.MetaArgs) {
   const lang = isLocale(params.lang) ? params.lang : DEFAULT_LOCALE;
-  return [
-    { title: `${lang === "ar" ? "المدونة" : "Blog"} | SHROUK` },
-    { name: "robots", content: "noindex" },
-  ];
+  return pageMeta({
+    siteUrl: d?.siteUrl ?? "",
+    index: d?.index ?? false,
+    lang,
+    paths: { ar: "/ar/blog", en: "/en/blog" },
+    title: `${lang === "ar" ? "المدونة" : "Blog"} | SHROUK`,
+  });
 }
 
 export default function Blog({ loaderData }: Route.ComponentProps) {
-  const { category } = loaderData;
+  const { category, featured, posts } = loaderData;
   const { p, lang } = useT();
-  const featured = POSTS[0]!;
-  const posts = POSTS.filter((x) => !category || x.category === category);
-  const catName = (k: DemoPost["category"]) => POST_CATEGORIES.find((c) => c.key === k)?.name[lang] ?? "";
+  const catName = (k: string) => POST_CATEGORIES.find((c) => c.key === k)?.name[lang] ?? "";
 
   return (
     <>
       <PageHero
-        eyebrow={p.blog.featured}
-        title={featured.title[lang]}
-        body={featured.excerpt[lang]}
-        image="/assets/hero/hero-desktop-text-free.webp"
+        eyebrow={featured ? p.blog.featured : undefined}
+        title={featured ? featured.title[lang] : p.blog.title}
+        body={featured ? featured.excerpt[lang] : undefined}
+        image={FALLBACK_IMAGE}
       >
-        <Link to={`/${lang}/blog/${featured.slug}`} className={btnPrimary}>
-          {p.blog.readNow}
-          <EndArrow className="size-4" />
-        </Link>
+        {featured ? (
+          <Link to={`/${lang}/blog/${featured.slug[lang]}`} className={btnPrimary}>
+            {p.blog.readNow}
+            <EndArrow className="size-4" />
+          </Link>
+        ) : null}
       </PageHero>
       <div className={`${container} space-y-10 py-8`}>
-        <DemoBadge />
         <nav aria-label={p.blog.title}>
           <ul className="flex flex-wrap gap-2">
             <li>
@@ -73,11 +88,11 @@ export default function Blog({ loaderData }: Route.ComponentProps) {
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {posts.map((post) => (
-                <li key={post.slug}>
+                <li key={post.id}>
                   <article className="group relative flex h-full flex-col rounded-card bg-panel p-3">
                     <div className="relative">
                       <img
-                        src={post.image}
+                        src={post.image ?? FALLBACK_IMAGE}
                         alt=""
                         loading="lazy"
                         className="aspect-[4/3] w-full rounded-input object-cover"
@@ -88,7 +103,7 @@ export default function Blog({ loaderData }: Route.ComponentProps) {
                     </div>
                     <h3 className="mt-3 font-semibold">
                       <Link
-                        to={`/${lang}/blog/${post.slug}`}
+                        to={`/${lang}/blog/${post.slug[lang]}`}
                         className="after:absolute after:inset-0 hover:underline"
                       >
                         {post.title[lang]}
