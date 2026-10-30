@@ -1,0 +1,52 @@
+/**
+ * Cloudflare Worker configuration. Secrets are NOT here: use `.dev.vars` locally and `wrangler secret put` when deployed
+ * (SESSION_SECRET, MFA_ENCRYPTION_KEY, later PAYMOB_*, TURNSTILE_SECRET_KEY).
+ *
+ * Environments: the top level is local development. `env.staging` and `env.production` carry their own resource IDs.
+ * The Hyperdrive/R2 IDs below are placeholders until real resources exist (see docs/deployment.md).
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "shrouk-eyewear",
+	"compatibility_date": "2026-10-23",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "./workers/app.ts",
+	"vars": {
+		"APP_ENV": "development",
+		"SITE_URL": "http://localhost:5173",
+		"ENABLE_COD": "false"
+	},
+	"triggers": { "crons": ["*/5 * * * *"] },
+	"observability": { "enabled": true },
+	"upload_source_maps": true,
+
+	// HYPERDRIVE: caching DISABLED. Sessions, permissions, cart, checkout, inventory, payments, admin.
+	// HYPERDRIVE_CATALOG: caching ENABLED. Stale-tolerant public catalog/content reads only.
+	"hyperdrive": [
+		{ "binding": "HYPERDRIVE", "id": "00000000000000000000000000000000", "localConnectionString": "postgres://shrouk:shrouk_local_only@127.0.0.1:54329/shrouk_dev" },
+		{ "binding": "HYPERDRIVE_CATALOG", "id": "00000000000000000000000000000000", "localConnectionString": "postgres://shrouk:shrouk_local_only@127.0.0.1:54329/shrouk_dev" }
+	],
+
+	"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "shrouk-media-dev" }],
+
+	"env": {
+		"staging": {
+			"name": "shrouk-eyewear-staging",
+			"vars": { "APP_ENV": "staging", "SITE_URL": "https://staging.example.invalid" },
+			"hyperdrive": [
+				{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_NO_CACHE" },
+				{ "binding": "HYPERDRIVE_CATALOG", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_CACHED" }
+			],
+			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "shrouk-media-staging" }]
+		},
+		"production": {
+			"name": "shrouk-eyewear-production",
+			"vars": { "APP_ENV": "production", "SITE_URL": "https://example.invalid" },
+			"hyperdrive": [
+				{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_PRODUCTION_HYPERDRIVE_ID_NO_CACHE" },
+				{ "binding": "HYPERDRIVE_CATALOG", "id": "REPLACE_WITH_PRODUCTION_HYPERDRIVE_ID_CACHED" }
+			],
+			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "shrouk-media-production" }]
+		}
+	}
+}

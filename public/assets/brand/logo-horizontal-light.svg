@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="210" viewBox="0 0 760 210"><rect width="760" height="210" fill="none"/>
+  <g transform="translate(20,23) scale(1.05)"><g fill="none" stroke="#FF6A00" stroke-linecap="round" stroke-linejoin="round">
+<path d="M40 91 A40 40 0 0 1 120 91" stroke-width="12"/>
+<path d="M29 97 H132" stroke-width="7" opacity=".95"/>
+<path d="M48 109 Q66 130 82 106 Q98 130 116 109" stroke-width="7"/>
+<path d="M80 25 V10 M39 38 L26 24 M121 38 L135 24 M22 76 H8 M138 76 H153" stroke-width="7"/></g></g>
+  <text x="508" y="114" text-anchor="middle" fill="#171514" font-family="Noto Kufi Arabic, Cairo, Tahoma, sans-serif" font-size="77" font-weight="800" direction="rtl" unicode-bidi="plaintext" >شروق</text>
+  <text x="508" y="161" text-anchor="middle" fill="#171514" font-family="Arial, sans-serif" font-size="32" font-weight="700" letter-spacing="10">SHROUK</text>
+  <text x="508" y="185" text-anchor="middle" fill="#171514" font-family="Arial, sans-serif" opacity=".65" font-size="13" letter-spacing="6">EYEWEAR</text></svg>

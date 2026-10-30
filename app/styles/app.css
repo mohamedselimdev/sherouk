@@ -1,0 +1,90 @@
+@import "tailwindcss" source("..");
+@import "@fontsource-variable/inter";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --bg: #f7f3ee;
+  --surface: #ffffff;
+  --panel: #f1e8df;
+  --fg: #171514;
+  --muted: #6b5a50;
+  --brand: #ff6a00;
+  --cta: #b94e25;
+  --cta-fg: #ffffff;
+  --sand: #dfd0c5;
+  --brown: #4b2e23;
+  --footer-bg: #171514;
+  --footer-fg: #f7f3ee;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #141312;
+  --surface: #1d1b19;
+  --panel: #26221f;
+  --fg: #f7f3ee;
+  --muted: #b8a99d;
+  --cta: #d8612f;
+  --cta-fg: #141312;
+  --sand: #3a2f28;
+  --brown: #e7d3c5;
+  --footer-bg: #0d0c0b;
+  --footer-fg: #f7f3ee;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-cta: var(--cta);
+  --color-cta-fg: var(--cta-fg);
+  --color-sand: var(--sand);
+  --color-brown: var(--brown);
+  --color-footer-bg: var(--footer-bg);
+  --color-footer-fg: var(--footer-fg);
+  --font-sans: "Inter Variable", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --radius-input: 0.5rem;
+  --radius-card: 0.75rem;
+  --shadow-soft: 0 6px 24px -10px rgb(75 46 35 / 0.25);
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+}
+html[lang="ar"] body {
+  font-family: var(--font-arabic);
+  line-height: 1.7;
+}
+html[lang="en"] body {
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+body {
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

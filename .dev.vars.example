@@ -1,0 +1,12 @@
+# Copy to .dev.vars (or run `npm run dev:init`). Local development only; never commit real values.
+SESSION_SECRET=replace-with-32-plus-random-characters
+MFA_ENCRYPTION_KEY=replace-with-base64-of-32-random-bytes
+SEED_ADMIN_EMAIL=admin@shrouk.local
+SEED_ADMIN_PASSWORD=replace-with-a-long-random-password
+ENABLE_COD=true
+# Local Paymob stub values (the e2e tests run a stub on :5199). Real keys: wrangler secret put.
+PAYMOB_SECRET_KEY=sk_test_local_only
+PAYMOB_PUBLIC_KEY=pk_test_local_only
+PAYMOB_HMAC_SECRET=replace-with-random-hex
+PAYMOB_INTEGRATION_ID=1234567
+PAYMOB_BASE_URL=http://127.0.0.1:5199
