@@ -32,10 +32,11 @@
 	"env": {
 		"staging": {
 			"name": "shrouk-eyewear-staging",
-			"vars": { "APP_ENV": "staging", "SITE_URL": "https://staging.example.invalid" },
+			"vars": { "APP_ENV": "staging", "SITE_URL": "https://shrouk-eyewear-staging.mohamedselim.workers.dev", "ENABLE_COD": "false" },
+			"triggers": { "crons": ["*/5 * * * *"] },
 			"hyperdrive": [
-				{ "binding": "HYPERDRIVE", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_NO_CACHE" },
-				{ "binding": "HYPERDRIVE_CATALOG", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_CACHED" }
+				{ "binding": "HYPERDRIVE", "id": "f578c55b47af4e90b4f1024f92931166" },
+				{ "binding": "HYPERDRIVE_CATALOG", "id": "1e5ce33cdcaa49d685d8303e56fe9145" }
 			],
 			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "shrouk-media" }]
 		},
