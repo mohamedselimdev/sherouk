@@ -12,6 +12,7 @@ import {
   Store,
   Ticket,
   UserCog,
+  LifeBuoy,
   Newspaper,
   Users,
   X,
@@ -47,6 +48,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
       customersRead: can(principal, "customers:read"),
       couponsManage: can(principal, "coupons:manage"),
       contentWrite: can(principal, "content:write"),
+      supportManage: can(principal, "support:manage"),
       branchesRead: canAny(principal, "branches:read"),
     },
   };
@@ -94,6 +96,9 @@ function AdminShell({ data }: { data: Route.ComponentProps["loaderData"] }) {
       : []),
     ...(data.caps.contentWrite
       ? [{ label: a.modules.posts, to: `/${lang}/admin/posts`, icon: Newspaper }]
+      : []),
+    ...(data.caps.supportManage
+      ? [{ label: a.modules.support, to: `/${lang}/admin/support`, icon: LifeBuoy }]
       : []),
     ...(data.caps.financeRead
       ? [{ label: a.modules.finance, to: `/${lang}/admin/finance`, icon: Banknote }]

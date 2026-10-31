@@ -53,6 +53,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link className={link} to={`/${lang}/contact`}>
+                {t.nav.contact}
+              </Link>
+            </li>
+            <li>
               <Link className={link} to={`/${lang}/blog`}>
                 {t.nav.blog}
               </Link>

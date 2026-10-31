@@ -1,6 +1,6 @@
 import { eq, like } from "drizzle-orm";
 import { expect, test } from "@playwright/test";
-import { branches, coupons, posts } from "../../db/schema";
+import { branches, coupons, posts, rateLimits, supportTickets } from "../../db/schema";
 import { createDb } from "../../server/db";
 import { createOrder } from "../../server/orders/service";
 import { cleanup, loginAsStaff, makeStaff, type TestStaff } from "./support";
@@ -19,6 +19,11 @@ let nasr: string;
 
 test.beforeAll(async () => {
   await cleanup();
+  {
+    const { db, close } = createDb(DEV_URL, 1);
+    await db.delete(rateLimits).where(like(rateLimits.key, "ticket:%"));
+    await close();
+  }
   await resetOrdersAndStock();
   const { db, close } = createDb(DEV_URL, 2);
   try {
@@ -52,6 +57,8 @@ test.afterAll(async () => {
   const { db, close } = createDb(DEV_URL, 2);
   try {
     await db.delete(posts).where(like(posts.slugEn, "e2e-post-%"));
+    await db.delete(supportTickets).where(like(supportTickets.message, "E2E contact%"));
+    await db.delete(rateLimits).where(like(rateLimits.key, "ticket:%"));
     await db.delete(coupons).where(like(coupons.code, "E2E%"));
   } finally {
     await close();
@@ -215,4 +222,30 @@ test("blog: an editor drafts a post, it stays hidden until published, then shows
   await expect(anon.getByText("<script>window.__xss=1</script>")).toBeVisible();
   expect(await anon.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
   await visitor.close();
+});
+
+test("contact form: a visitor writes in, support sees the message and closes it", async ({
+  page,
+  browser,
+}) => {
+  const marker = `E2E contact ${Date.now()}`;
+  const visitor = await browser.newContext();
+  const v = await visitor.newPage();
+  await v.goto("/en/contact");
+  await v.waitForFunction(() => document.documentElement.dataset.hydrated === "true");
+  await v.getByLabel("Name", { exact: true }).fill("E2E Visitor");
+  await v.getByLabel(/^Phone/).fill("01012345678");
+  await v.getByLabel("Your message").fill(`${marker} please call me back`);
+  await v.getByRole("button", { name: "Send" }).click();
+  await expect(v.getByRole("status")).toContainText(/Reference:\s*T-[A-Z2-9]{8}/);
+  await visitor.close();
+
+  await loginAsStaff(page, support);
+  await page.getByRole("link", { name: "Contact messages" }).click();
+  const item = page.locator("main li").filter({ hasText: marker });
+  await expect(item).toBeVisible();
+  await item.getByRole("button", { name: "Close" }).click();
+  await expect(page.locator("main li").filter({ hasText: marker })).toHaveCount(0);
+  await page.getByRole("link", { name: "Closed" }).click();
+  await expect(page.locator("main li").filter({ hasText: marker })).toBeVisible();
 });

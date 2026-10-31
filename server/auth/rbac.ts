@@ -23,6 +23,7 @@ export const PERMISSIONS = {
   "customers:read": "View customers",
   "content:write": "Edit CMS content",
   "coupons:manage": "Create, enable and disable coupons",
+  "support:manage": "Read and close contact-form tickets",
   "finance:read": "View finance reports",
 } as const;
 export type Permission = keyof typeof PERMISSIONS;
@@ -48,6 +49,7 @@ export const ROLE_DEFS: Record<string, RoleDef> = {
       "inventory:read",
       "inventory:write",
       "customers:read",
+      "support:manage",
       "audit:read",
     ],
   },
@@ -77,7 +79,7 @@ export const ROLE_DEFS: Record<string, RoleDef> = {
   },
   customer_support: {
     name: "Customer Support",
-    permissions: ["orders:read", "refunds:request", "customers:read"],
+    permissions: ["orders:read", "refunds:request", "customers:read", "support:manage"],
   },
   content_editor: { name: "Content Editor", permissions: ["catalog:read", "media:upload", "content:write"] },
 };

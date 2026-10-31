@@ -94,7 +94,7 @@ describe("schema", () => {
       await migrate(drizzle(fresh), { migrationsFolder: "db/migrations" });
       const tables =
         await fresh`select count(*)::int as n from information_schema.tables where table_schema = 'public' and table_name <> '__drizzle_migrations'`;
-      expect(tables[0]!.n).toBe(37);
+      expect(tables[0]!.n).toBe(38);
       await fresh.end();
     } finally {
       await admin.unsafe(`drop database ${name} with (force)`);

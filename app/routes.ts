@@ -29,6 +29,7 @@ export default [
       route("admin/branches", "routes/admin-branches.tsx"),
       route("admin/coupons", "routes/admin-coupons.tsx"),
       route("admin/posts", "routes/admin-posts.tsx"),
+      route("admin/support", "routes/admin-support.tsx"),
       route("admin/posts/:id", "routes/admin-post.tsx"),
     ]),
     layout("layouts/storefront.tsx", [
@@ -42,6 +43,7 @@ export default [
       route("checkout/result/:ref", "routes/order-result.tsx"),
       route("branches", "routes/branches.tsx"),
       route("about", "routes/about.tsx"),
+      route("contact", "routes/contact.tsx"),
       route("blog", "routes/blog.tsx"),
       route("blog/:slug", "routes/blog-post.tsx"),
       route("account", "routes/account.tsx"),

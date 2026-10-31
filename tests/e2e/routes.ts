@@ -10,6 +10,7 @@ export const ROUTES = [
   "/branches",
   "/about",
   "/blog",
+  "/contact",
   "/blog/daily-eye-care",
   "/account/login",
   "/account/register",

@@ -1,7 +1,17 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const PAGES = ["", "/shop", "/cart", "/checkout", "/branches", "/about", "/blog", "/account/login"];
+const PAGES = [
+  "",
+  "/shop",
+  "/cart",
+  "/checkout",
+  "/branches",
+  "/about",
+  "/blog",
+  "/contact",
+  "/account/login",
+];
 
 for (const lang of ["en", "ar"]) {
   for (const theme of ["light", "dark"]) {

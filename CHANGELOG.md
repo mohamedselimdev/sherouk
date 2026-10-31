@@ -15,3 +15,4 @@
 - Phase 6 (coupons): admin page to create, enable and disable discount coupons with validation, case-insensitive duplicate check and audit entries; new coupons:manage permission for HQ Admin and Marketing.
 - Phase 7 (blog): bilingual blog stored in the database with a draft and publish workflow in the admin, plain-text bodies rendered as text, BlogPosting and breadcrumb JSON-LD, posts in the sitemap, and the demo blog data replaced. Sample posts are seeded for development and staging only.
 - Phase 8 (resilience): backup and restore drill script that proves a table-by-table restore with checksums; footer credit logo reduced from 393 KB to under 4 KB.
+- Phase 6 (support): public contact form with honeypot and rate limit (5 per address per hour), stored as tickets, and an admin inbox for support staff to close and reopen them. The team replies by phone or email outside the system; no email is sent automatically.
