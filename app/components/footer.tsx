@@ -86,7 +86,7 @@ export function Footer() {
           >
             <span aria-hidden="true">Developed by</span>
             <span className="rounded bg-white px-1.5 py-1">
-              <img src="/assets/brand/MS-logo.png" alt="" height={20} className="h-5 w-auto" />
+              <img src="/assets/brand/MS-logo-96.png" alt="" width={20} height={20} className="h-5 w-auto" />
             </span>
           </a>
         </div>
