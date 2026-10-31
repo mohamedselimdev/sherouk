@@ -74,3 +74,12 @@ No CSP yet (needs nonces; Phase 8). Rate limiting is Postgres-backed per IP/acco
 `wrangler secret put` for each environment: `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_ID`, optionally `PAYMOB_API_KEY`. Use Paymob **test** keys on staging and live keys only on production after the authorised live smoke test. Never set `PAYMOB_BASE_URL` outside local development (the app refuses to start with it).
 
 Paymob must be given `https://<site>/webhooks/paymob` as the processed-callback URL; the intention also sends it per payment. After a release that changes roles run `npm run db:sync-roles`.
+
+## Backup and restore drill
+
+`npm run db:backup-drill` (script `scripts/backup-drill.ts`) exports every public table to NDJSON, restores it into a scratch database built from the checked-in migrations, and compares row counts and a content checksum per table. It exits non-zero on any difference and drops the scratch database afterwards. Last run against the development database: 37 tables, 1181 rows, all identical.
+
+Limits to know:
+- The restore step sets `session_replication_role = replica` to load tables in any order, which needs a superuser. It works on the local development database. Managed providers (for example Neon) refuse it for the application role, so run the drill there with an owner/admin connection or restore with the provider's own tools.
+- The export holds personal data and password hashes. It is written under `artifacts/` (gitignored) and deleted unless `KEEP_DUMP=1`.
+- For production rely on the provider's point-in-time recovery, keep at least 7 days of history, and repeat a restore into a separate project once before launch and after every schema change that touches money tables. Never point the drill at the live database.
