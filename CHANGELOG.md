@@ -16,3 +16,4 @@
 - Phase 7 (blog): bilingual blog stored in the database with a draft and publish workflow in the admin, plain-text bodies rendered as text, BlogPosting and breadcrumb JSON-LD, posts in the sitemap, and the demo blog data replaced. Sample posts are seeded for development and staging only.
 - Phase 8 (resilience): backup and restore drill script that proves a table-by-table restore with checksums; footer credit logo reduced from 393 KB to under 4 KB.
 - Phase 6 (support): public contact form with honeypot and rate limit (5 per address per hour), stored as tickets, and an admin inbox for support staff to close and reopen them. The team replies by phone or email outside the system; no email is sent automatically.
+- Phase 8 (admin sign-in): the authenticator setup step now shows a scannable QR code drawn on the server, next to the typed setup key.

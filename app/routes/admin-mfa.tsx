@@ -1,5 +1,6 @@
 import { Form, redirect, useActionData, useLoaderData } from "react-router";
 import { z } from "zod";
+import QRCode from "qrcode";
 import type { Route } from "./+types/admin-mfa";
 import { useT } from "~/i18n/context";
 import { Field, FormError, SubmitButton } from "~/components/form";
@@ -14,7 +15,9 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
   if (session.mfaVerified) throw redirect(`/${params.lang}/admin`);
   if (session.user.mfaEnrolled) return { enrol: false as const };
   const { secret, uri } = await pendingMfaSecret(scope.db, scope.authConfig, session);
-  return { enrol: true as const, secret, uri };
+  // Drawn on the server from our own otpauth URI, so the secret never goes to a third-party QR service.
+  const qr = await QRCode.toString(uri, { type: "svg", margin: 1, width: 192 });
+  return { enrol: true as const, secret, uri, qr };
 }
 
 export async function action({ request, context, params }: Route.ActionArgs) {
@@ -47,6 +50,12 @@ export default function AdminMfa() {
       <p className="text-sm text-muted">{info.enrol ? a.auth.mfaEnrolBody : a.auth.mfaVerifyBody}</p>
       {info.enrol ? (
         <div className="rounded-input border border-sand bg-panel p-3 text-sm">
+          <div
+            role="img"
+            aria-label={a.auth.qrLabel}
+            className="mx-auto mb-3 w-48 rounded bg-white p-1"
+            dangerouslySetInnerHTML={{ __html: info.qr }}
+          />
           <p className="font-medium">{a.auth.secretKey}</p>
           <p className="mt-1 select-all break-all font-mono text-base tracking-wider" dir="ltr">
             {info.secret}
